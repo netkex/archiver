@@ -46,7 +46,7 @@ TEST_CASE("Tree") {
     Tree tree1(std::vector<WordStatistic> {WordStatistic('a', 5), WordStatistic('b', 3), WordStatistic('c', 4)});
     Tree tree2(std::vector<WordStatistic> {WordStatistic('A', 100)});
 
-    SUBCASE("constructor") {
+    SUBCASE("constructor/tree structure") {
         SUBCASE("tree1") {
             const Node* root = tree1.getRoot();
             CHECK(root->next0 != nullptr);
@@ -146,7 +146,7 @@ TEST_CASE("empty file") {
 TEST_CASE("Table") {
     SUBCASE("default constructor") {
         Table table;
-        for (size_t i = 0; i <= maxByte; i++) {
+        for (std::size_t i = 0; i <= maxByte; i++) {
             CHECK(table[i].empty());
         }
     }
