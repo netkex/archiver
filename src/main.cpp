@@ -64,6 +64,7 @@ Arguments parse(int argc, char* argv[]) {
 }
 
 int main(int argc,char* argv[]) {
+
     Arguments arguments;
     try {
         arguments = parse(argc, argv);
