@@ -52,7 +52,7 @@ struct Node {
 class Tree {
 public:
     explicit Tree(const std::vector<WordStatistic>& statistic);
-    static const Node* go(const Node* node, bool bit);
+    const Node* go(const Node* node, bool bit);
     const Node* getRoot() const;
     Table getTable() const;
 

@@ -103,14 +103,6 @@ TEST_CASE("Tree") {
     }
 }
 
-TEST_CASE("code and decode") {
-    codeAndDecodeCheck("sample_01.txt");
-}
-
-TEST_CASE("empty file") {
-    codeAndDecodeCheck("empty.txt", true);
-}
-
 TEST_CASE("InputStream") {
     std::ifstream in(pathToResources("InputStreamSample.txt"));
     InputBitStream inputBitStream(in, "InputStreamSample.txt");
@@ -136,4 +128,73 @@ TEST_CASE("OutputStream") {
     out.close();
     CHECK(system(("diff " + pathToResources("InputStreamSample.txt") + " " + pathToResources("OutputStream.txt")).c_str()) == 0);
     system(("rm " + pathToResources("OutputStream.txt")).c_str());
+}
+
+TEST_CASE("code and decode simple") {
+    codeAndDecodeCheck("sample_01.txt");
+}
+
+TEST_CASE("code and decode hard") {
+    codeAndDecodeCheck("faust.txt", true, {5924106, 3736918, 844});
+    codeAndDecodeCheck("img_1.png", true, {4795717, 4793166, 2320});
+}
+
+TEST_CASE("empty file") {
+    codeAndDecodeCheck("empty.txt", true);
+}
+
+TEST_CASE("Table") {
+    SUBCASE("default constructor") {
+        Table table;
+        for (size_t i = 0; i <= maxByte; i++) {
+            CHECK(table[i].empty());
+        }
+    }
+
+    SUBCASE("operator[]") {
+        Table table;
+        table[10] = std::vector<bool> {false, true, true, false};
+        table[maxByte] = std::vector<bool> {true};
+        table[0] = std::vector<bool> {false};
+        CHECK_EQ(table[10], std::vector<bool> {false, true, true, false});
+        CHECK_EQ(table[maxByte], std::vector<bool> {true});
+        CHECK_EQ(table[0], std::vector<bool> {false});
+        for (std::size_t i = 0; i <= maxByte; i++) {
+            if (i == 0 || i == 10 || i == maxByte)
+                continue;
+            CHECK(table[i].empty());
+        }
+    }
+
+    SUBCASE("constructor") {
+        Table table{{0, std::vector<bool> {false}},
+                    {72, std::vector<bool> {false, false, true}},
+                    {maxByte, std::vector<bool> {true, false, true}}};
+        CHECK_EQ(table[0], std::vector<bool> {false});
+        CHECK_EQ(table[72], std::vector<bool> {false, false, true});
+        CHECK_EQ(table[maxByte], std::vector<bool> {true, false, true});
+        for (std::size_t i = 0; i <= maxByte; i++) {
+            if (i == 0 || i == 72 || i == maxByte)
+                continue;
+            CHECK(table[i].empty());
+        }
+
+        Table table2{{1, std::vector<bool> {false}}};
+        CHECK_EQ(table2[1], std::vector<bool> {false});
+        for (std::size_t i = 0; i < maxByte; i++) {
+            if (i == 1)
+                continue;
+            CHECK(table2[i].empty());
+        }
+    }
+
+    SUBCASE("at") {
+        Table table;
+        CHECK_THROWS_AS(table.at(0), const HuffmanLogicError&);
+        table[1] = std::vector<bool> (1, false);
+        CHECK_NOTHROW(table.at(1));
+        CHECK_THROWS_AS(table.at(maxByte), const HuffmanLogicError&);
+        table[1].clear();
+        CHECK_THROWS_AS(table.at(1), const HuffmanLogicError&);
+    }
 }
