@@ -3,7 +3,6 @@
 //
 
 /**
- * directory name is HTest because https://github.com/evlinsky/cpp/issues/13
  * use #include <doctest/doctest.h> indeed "doctest.h", because clion doesn't make run button for each HTest in second variant
  */
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
