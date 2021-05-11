@@ -8,6 +8,7 @@
  */
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
+#include <filesystem>
 #include "Huffman.hpp"
 
 using namespace huffman;
@@ -21,6 +22,10 @@ bool statisticEq(const SizeStatistic& statistic1, const SizeStatistic& statistic
            && statistic1.originalSize == statistic2.originalSize);
 }
 
+void removeFile(std::string fileName) {
+    std::filesystem::remove(fileName);
+}
+
 void codeAndDecodeCheck(std::string fileName, bool specialStatisticCheck = false, SizeStatistic specialStatistic = SizeStatistic {0, 0, 0}) {
     auto codeStatistic = code(pathToResources(fileName), pathToResources("testTmp.txt"));
     auto decodeStatistic = decode(pathToResources("testTmp.txt"), pathToResources("out.txt"));
@@ -29,8 +34,8 @@ void codeAndDecodeCheck(std::string fileName, bool specialStatisticCheck = false
     if (specialStatisticCheck) {
         CHECK(statisticEq(codeStatistic, specialStatistic));
     }
-    system(("rm " + pathToResources("testTmp.txt")).c_str());
-    system(("rm " + pathToResources("out.txt")).c_str());
+    removeFile(pathToResources("testTmp.txt"));
+    removeFile(pathToResources("out.txt"));
 }
 
 TEST_CASE("Exception: nonexistent file") {
@@ -127,7 +132,7 @@ TEST_CASE("OutputStream") {
     outputBitStream.close();
     out.close();
     CHECK(system(("diff " + pathToResources("InputStreamSample.txt") + " " + pathToResources("OutputStream.txt")).c_str()) == 0);
-    system(("rm " + pathToResources("OutputStream.txt")).c_str());
+    removeFile(pathToResources("OutputStream.txt"));
 }
 
 TEST_CASE("code and decode simple") {
