@@ -67,14 +67,6 @@ struct Header {
     std::vector<WordStatistic> statistic;
 };
 
-std::vector<WordStatistic> getStatistic(std::string inputFile); //get byte statistic of file
-
-Header readHeader(std::ifstream& in, std::string inputFile);
-void writeHeader(std::ofstream& out, std::string outputFile, const std::vector<WordStatistic>& statistic, const Table& table);
-
-void writeCompressedFile(std::string inputFile, OutputBitStream outStream, const Table& table);
-void writeUncompressedFile(InputBitStream inStream, std::string outputFile, std::size_t fileSize, const std::unique_ptr<Tree>& tree);
-
 SizeStatistic code(std::string inputFile, std::string outputFile);
 SizeStatistic decode(std::string inputFile, std::string outputFile);
 

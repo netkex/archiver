@@ -20,56 +20,6 @@ void checkOutputFileExistence(std::ofstream& out, std::string outputFile) {
         throw HuffmanLoadFileException(outputFile);
 }
 
-std::size_t fileSize(std::string fileName) {
-    std::ifstream fileStream(fileName, std::ios::binary);
-    checkInputFileExistence(fileStream, fileName);
-    const auto begin = fileStream.tellg();
-    fileStream.seekg (0, std::ios::end);
-    const auto end = fileStream.tellg();
-    return end - begin;
-}
-
-SizeStatistic code(std::string inputFile, std::string outputFile) {
-    if (fileSize(inputFile) == 0) {
-        std::ofstream out(outputFile);
-        return SizeStatistic{0, 0, 0};
-    }
-    auto statistic = getStatistic(inputFile);
-    auto table = Tree(statistic).getTable();
-    std::ofstream out(outputFile);
-    checkOutputFileExistence(out, outputFile);
-    const auto headerBegin = out.tellp();
-    writeHeader(out, outputFile, statistic, table);
-    const auto compressedPartBegin = out.tellp();
-    writeCompressedFile(inputFile, OutputBitStream(out, outputFile), table);
-    const auto endFile = out.tellp();
-    return SizeStatistic{fileSize(inputFile),
-                         static_cast<std::size_t>(endFile - compressedPartBegin),
-                         static_cast<std::size_t>(compressedPartBegin - headerBegin)};
-}
-
-SizeStatistic decode(std::string inputFile, std::string outputFile) {
-    if (fileSize(inputFile) == 0) {
-        std::ofstream out(outputFile);
-        return SizeStatistic{0, 0, 0};
-    }
-    std::ifstream in(inputFile);
-    checkInputFileExistence(in, inputFile);
-    const auto headerBegin = in.tellg();
-    auto header = readHeader(in, inputFile);
-    auto tree = std::make_unique<Tree> (header.statistic);
-    const auto compressedPartBegin = in.tellg();
-    try {
-        writeUncompressedFile(InputBitStream(in, inputFile), outputFile, header.size, tree);
-    } catch (const HuffmanLogicError& e) {
-        throw HuffmanInvalidCompressedFile(inputFile);
-    }
-    const auto endFile = in.tellg();
-    return SizeStatistic{fileSize(outputFile),
-                         static_cast<std::size_t>(endFile - compressedPartBegin),
-                         static_cast<std::size_t>(compressedPartBegin - headerBegin)};
-}
-
 void writeCompressedFile(std::string inputFile, OutputBitStream outStream, const Table& table) {
     std::ifstream in(inputFile);
     checkInputFileExistence(in, inputFile);
@@ -149,6 +99,56 @@ std::vector<WordStatistic> getStatistic(std::string inputFile) {
         statistic.emplace_back(id, rawStatistic[id]);
     }
     return statistic;
+}
+
+std::size_t fileSize(std::string fileName) {
+    std::ifstream fileStream(fileName, std::ios::binary);
+    checkInputFileExistence(fileStream, fileName);
+    const auto begin = fileStream.tellg();
+    fileStream.seekg (0, std::ios::end);
+    const auto end = fileStream.tellg();
+    return end - begin;
+}
+
+SizeStatistic code(std::string inputFile, std::string outputFile) {
+    if (fileSize(inputFile) == 0) {
+        std::ofstream out(outputFile);
+        return SizeStatistic{0, 0, 0};
+    }
+    auto statistic = getStatistic(inputFile);
+    auto table = Tree(statistic).getTable();
+    std::ofstream out(outputFile);
+    checkOutputFileExistence(out, outputFile);
+    const auto headerBegin = out.tellp();
+    writeHeader(out, outputFile, statistic, table);
+    const auto compressedPartBegin = out.tellp();
+    writeCompressedFile(inputFile, OutputBitStream(out, outputFile), table);
+    const auto endFile = out.tellp();
+    return SizeStatistic{fileSize(inputFile),
+                         static_cast<std::size_t>(endFile - compressedPartBegin),
+                         static_cast<std::size_t>(compressedPartBegin - headerBegin)};
+}
+
+SizeStatistic decode(std::string inputFile, std::string outputFile) {
+    if (fileSize(inputFile) == 0) {
+        std::ofstream out(outputFile);
+        return SizeStatistic{0, 0, 0};
+    }
+    std::ifstream in(inputFile);
+    checkInputFileExistence(in, inputFile);
+    const auto headerBegin = in.tellg();
+    auto header = readHeader(in, inputFile);
+    auto tree = std::make_unique<Tree> (header.statistic);
+    const auto compressedPartBegin = in.tellg();
+    try {
+        writeUncompressedFile(InputBitStream(in, inputFile), outputFile, header.size, tree);
+    } catch (const HuffmanLogicError& e) {
+        throw HuffmanInvalidCompressedFile(inputFile);
+    }
+    const auto endFile = in.tellg();
+    return SizeStatistic{fileSize(outputFile),
+                         static_cast<std::size_t>(endFile - compressedPartBegin),
+                         static_cast<std::size_t>(compressedPartBegin - headerBegin)};
 }
 
 /** Table realisation */
