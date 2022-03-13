@@ -76,12 +76,10 @@ int main(int argc,char* argv[]) {
         auto startTime = clock();
         if (arguments.type == CODE) {
             auto statisticSize = code(arguments.inputFile, arguments.outputFile);
-            std::cout << statisticSize.originalSize << std::endl << statisticSize.compressedSize << std::endl
-                      << statisticSize.headerSize << std::endl;
+            std::cout << statisticSize.originalSize << std::endl << statisticSize.compressedSize << std::endl;
         } else {
             auto statisticSize = decode(arguments.inputFile, arguments.outputFile);
-            std::cout << statisticSize.compressedSize << std::endl << statisticSize.originalSize << std::endl
-                      << statisticSize.headerSize << std::endl;
+            std::cout << statisticSize.compressedSize << std::endl << statisticSize.originalSize << std::endl;
         }
         auto endTime = clock();
         if (arguments.timeFlag)
